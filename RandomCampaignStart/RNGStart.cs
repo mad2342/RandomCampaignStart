@@ -87,6 +87,32 @@ namespace RandomCampaignStart
                     baySlot = 0;
                 }
 
+                // add the random assault mechs
+                var assaultMechIds = new List<string>(RngStart.Settings.AssaultMechsPossible);
+                while (assaultMechIds.Count < RngStart.Settings.NumberAssaultMechs)
+                {
+                    assaultMechIds.AddRange(RngStart.Settings.AssaultMechsPossible);
+                }
+
+                assaultMechIds.RNGShuffle();
+                for (int i = 0; i < RngStart.Settings.NumberAssaultMechs; i++)
+                {
+                    mechIds.Add(assaultMechIds[i]);
+                }
+
+                // add the random heavy mechs
+                var heavyMechIds = new List<string>(RngStart.Settings.HeavyMechsPossible);
+                while (heavyMechIds.Count < RngStart.Settings.NumberHeavyMechs)
+                {
+                    heavyMechIds.AddRange(RngStart.Settings.HeavyMechsPossible);
+                }
+
+                heavyMechIds.RNGShuffle();
+                for (int i = 0; i < RngStart.Settings.NumberHeavyMechs; i++)
+                {
+                    mechIds.Add(heavyMechIds[i]);
+                }
+
                 // add the random medium mechs
                 var mediumMechIds = new List<string>(RngStart.Settings.MediumMechsPossible);
                 while (mediumMechIds.Count < RngStart.Settings.NumberMediumMechs)
