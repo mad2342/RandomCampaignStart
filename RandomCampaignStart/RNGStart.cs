@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
 using BattleTech;
 using Harmony;
@@ -68,7 +69,7 @@ namespace RandomCampaignStart
             }
             
             // mechs
-            if (RngStart.Settings.NumberLightMechs + RngStart.Settings.NumberMediumMechs > 0)
+            if (RngStart.Settings.NumberLightMechs + RngStart.Settings.NumberMediumMechs + RngStart.Settings.NumberHeavyMechs + RngStart.Settings.NumberAssaultMechs > 0)
             {
                 int baySlot = 1;
                 var mechIds = new List<string>();
@@ -116,8 +117,16 @@ namespace RandomCampaignStart
                 foreach (var mechId in mechIds)
                 {
                     var mechDef = new MechDef(__instance.DataManager.MechDefs.Get(mechId), __instance.GenerateSimGameUID());
-                    __instance.AddMech(baySlot, mechDef, true, true, false);
+                    __instance.AddMech((baySlot <= 5 ? baySlot : 5), mechDef, true, true, false);
+
+                    // Check to see if we're on the last mechbay and if we have more mechs to add. If so, store the mech at index 5 before next iteration.
+                    if (baySlot >= 5 && baySlot < (mechIds.Count - 1))
+                    {
+                        __instance.UnreadyMech(5, mechDef);
+                    }
+
                     baySlot++;
+
                 }
             }
         }
@@ -130,9 +139,13 @@ namespace RandomCampaignStart
         public int NumberProceduralPilots = 0;
         public int NumberLightMechs = 3;
         public int NumberMediumMechs = 1;
+        public int NumberHeavyMechs = 0;
+        public int NumberAssaultMechs = 0;
 
         public List<string> LightMechsPossible = new List<string>();
         public List<string> MediumMechsPossible = new List<string>();
+        public List<string> HeavyMechsPossible = new List<string>();
+        public List<string> AssaultMechsPossible = new List<string>();
     }
 
     public static class RngStart
@@ -148,7 +161,11 @@ namespace RandomCampaignStart
             // read settings
             try
             {
-                Settings = JsonConvert.DeserializeObject<ModSettings>(modSettings);
+                using (StreamReader reader = new StreamReader("mods/RandomCampaignStart/settings.json"))
+                {
+                    string settingsJson = reader.ReadToEnd();
+                    Settings = JsonConvert.DeserializeObject<ModSettings>(settingsJson);
+                }
             }
             catch (Exception)
             {
