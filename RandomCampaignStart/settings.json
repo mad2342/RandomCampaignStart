@@ -1,5 +1,5 @@
 {
-    "RemoveAncestralMech": true,
+    "RemoveAncestralMech": false,
     "NumberRandomRonin": 2,
     "NumberProceduralPilots": 2,
     "NumberLightMechs": 3,
@@ -7,14 +7,14 @@
     "NumberHeavyMechs": 0,
     "NumberAssaultMechs": 0,
     "LightMechsPossible": [
-        "mechdef_locust_LCT-1V",
-        "mechdef_locust_LCT-1M",
-        "mechdef_locust_LCT-1S",
-        "mechdef_jenner_JR7-D",
-        "mechdef_panther_PNT-9R",
         "mechdef_commando_COM-1B",
         "mechdef_commando_COM-2D",
         "mechdef_firestarter_FS9-H",
+        "mechdef_jenner_JR7-D",
+        "mechdef_locust_LCT-1V",
+        "mechdef_locust_LCT-1M",
+        "mechdef_locust_LCT-1S",
+        "mechdef_panther_PNT-9R",
         "mechdef_spider_SDR-5V",
         "mechdef_urbanmech_UM-R60"
     ],
@@ -24,15 +24,15 @@
         "mechdef_centurion_CN9-AL",
         "mechdef_cicada_CDA-2A",
         "mechdef_cicada_CDA-3C",
+        "mechdef_enforcer_ENF-4R",
         "mechdef_griffin_GRF-1N",
         "mechdef_griffin_GRF-1S",
         "mechdef_hunchback_HBK-4G",
         "mechdef_hunchback_HBK-4P",
-        "mechdef_enforcer_ENF-4R",
-        "mechdef_trebuchet_TBT-5N",
+        "mechdef_kintaro_KTO-18",
         "mechdef_shadowhawk_SHD-2D",
         "mechdef_shadowhawk_SHD-2H",
-        "mechdef_kintaro_KTO-18",
+        "mechdef_trebuchet_TBT-5N",
         "mechdef_vindicator_VND-1R",
         "mechdef_wolverine_WVR-6K",
         "mechdef_wolverine_WVR-6R"
@@ -70,3 +70,15 @@
         "mechdef_zeus_ZEU-6S"
     ]
 }
+
+// Unused mech definitions from VersionManifest - SLDF Mechs, etc.
+
+// "mechdef_atlas_AItest_AC2"
+// "mechdef_atlas_AS7-D-HT"
+// "mechdef_atlas_AS7-D_LazerBoat"
+// "mechdef_blackknight_BL-6b-KNT"
+// "mechdef_centurion_CN9-AS"
+// "mechdef_griffin_GRF-4N"
+// "mechdef_highlander_HGN-732b"
+// "mechdef_kingcrab_KGC-V-0000"
+// "mechdef_panther1b_PNT-9R"
