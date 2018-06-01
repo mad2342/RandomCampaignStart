@@ -140,18 +140,20 @@ namespace RandomCampaignStart
                 }
 
                 // actually add the mechs to the game
-                foreach (var mechId in mechIds)
+                for (int i = 0; i < mechIds.Count; i++)
                 {
-                    var mechDef = new MechDef(__instance.DataManager.MechDefs.Get(mechId), __instance.GenerateSimGameUID());
-                    __instance.AddMech((baySlot <= 5 ? baySlot : 5), mechDef, true, true, false);
+                    var mechDef = new MechDef(__instance.DataManager.MechDefs.Get(mechIds[i]), __instance.GenerateSimGameUID());
+                    __instance.AddMech(baySlot, mechDef, true, true, false);
 
                     // Check to see if we're on the last mechbay and if we have more mechs to add. If so, store the mech at index 5 before next iteration.
-                    if (baySlot >= 5 && baySlot < (mechIds.Count - 1))
+                    if (baySlot == 5 && (i + 1) < mechIds.Count)
                     {
                         __instance.UnreadyMech(5, mechDef);
                     }
-
-                    baySlot++;
+                    else
+                    {
+                        baySlot++;
+                    }
 
                 }
             }
