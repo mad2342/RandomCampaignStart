@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Reflection;
 using BattleTech;
 using Harmony;
@@ -189,11 +188,7 @@ namespace RandomCampaignStart
             // read settings
             try
             {
-                using (StreamReader reader = new StreamReader("mods/RandomCampaignStart/settings.json"))
-                {
-                    string settingsJson = reader.ReadToEnd();
-                    Settings = JsonConvert.DeserializeObject<ModSettings>(settingsJson);
-                }
+                Settings = JsonConvert.DeserializeObject<ModSettings>(modSettings);
             }
             catch (Exception)
             {
