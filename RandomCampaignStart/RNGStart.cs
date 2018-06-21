@@ -64,15 +64,17 @@ namespace RandomCampaignStart
                 // every time, and can push out duplicates, which is odd?
                 // just do our own thing
                 var pilots = new List<PilotDef>();
-                
-                // add our guarenteed starting ronin
-                foreach (var roninID in RngStart.Settings.StartingRonin)
-                {
-                    var pilotDef = __instance.DataManager.PilotDefs.Get(roninID);
 
-                    // add directly to roster, don't want to get duplicate ronin from random ronin
-                    if (pilotDef != null)
-                        __instance.AddPilotToRoster(pilotDef, true);
+                if (RngStart.Settings.StartingRonin != null)
+                {
+                    foreach (var roninID in RngStart.Settings.StartingRonin)
+                    {
+                        var pilotDef = __instance.DataManager.PilotDefs.Get(roninID);
+
+                        // add directly to roster, don't want to get duplicate ronin from random ronin
+                        if (pilotDef != null)
+                            __instance.AddPilotToRoster(pilotDef, true);
+                    }
                 }
 
                 pilots.AddRange(GetRandomSubList(__instance.RoninPilots, RngStart.Settings.NumberRandomRonin));
