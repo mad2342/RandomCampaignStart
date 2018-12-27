@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using BattleTech;
 using Harmony;
+using HBS;
 using Newtonsoft.Json;
 
 // ReSharper disable CollectionNeverUpdated.Global
@@ -51,6 +53,32 @@ namespace RandomCampaignStart
 
             return subList;
         }
+        
+        private static void ReplacePilotStats(PilotDef pilotDef, PilotDef replacementStatPilotDef, SimGameState simGameState)
+        {
+            // set all stats to the subPilot stats
+            pilotDef.AddBaseSkill(SkillType.Gunnery, replacementStatPilotDef.BaseGunnery - pilotDef.BaseGunnery);
+            pilotDef.AddBaseSkill(SkillType.Piloting, replacementStatPilotDef.BasePiloting - pilotDef.BasePiloting);
+            pilotDef.AddBaseSkill(SkillType.Guts, replacementStatPilotDef.BaseGuts - pilotDef.BaseGuts);
+            pilotDef.AddBaseSkill(SkillType.Tactics, replacementStatPilotDef.BaseTactics - pilotDef.BaseTactics);
+
+            pilotDef.ResetBonusStats();
+            pilotDef.AddSkill(SkillType.Gunnery, replacementStatPilotDef.BonusGunnery);
+            pilotDef.AddSkill(SkillType.Piloting, replacementStatPilotDef.BonusPiloting);
+            pilotDef.AddSkill(SkillType.Guts, replacementStatPilotDef.BonusGuts);
+            pilotDef.AddSkill(SkillType.Tactics, replacementStatPilotDef.BonusTactics);
+
+            // set exp to replacementStatPilotDef
+            pilotDef.SetSpentExperience(replacementStatPilotDef.ExperienceSpent);
+            pilotDef.SetUnspentExperience(replacementStatPilotDef.ExperienceUnspent);
+
+            // copy abilities
+            pilotDef.abilityDefNames.Clear();
+            pilotDef.abilityDefNames.AddRange(replacementStatPilotDef.abilityDefNames);
+            if (pilotDef.AbilityDefs != null)
+                pilotDef.AbilityDefs.Clear();
+            pilotDef.ForceRefreshAbilityDefs();
+        } 
 
         public static void Postfix(SimGameState __instance)
         {
@@ -59,33 +87,44 @@ namespace RandomCampaignStart
                 // clear roster
                 while (__instance.PilotRoster.Count > 0)
                     __instance.PilotRoster.RemoveAt(0);
-
-                // pilotgenerator seems to give me the same exact results for ronin
-                // every time, and can push out duplicates, which is odd?
-                // just do our own thing
-                var pilots = new List<PilotDef>();
-
-                if (RngStart.Settings.StartingRonin != null)
+                
+                // starting ronin that are always present
+                if (RngStart.Settings.StartingRonin != null && RngStart.Settings.StartingRonin.Count > 0)
                 {
                     foreach (var roninID in RngStart.Settings.StartingRonin)
                     {
                         var pilotDef = __instance.DataManager.PilotDefs.Get(roninID);
 
-                        // add directly to roster, don't want to get duplicate ronin from random ronin
+                        if (RngStart.Settings.RerollRoninStats)
+                            ReplacePilotStats(pilotDef, __instance.PilotGenerator.GeneratePilots(1, RngStart.Settings.PilotPlanetDifficulty, 0, out _)[0], __instance);
+                        
                         if (pilotDef != null)
                             __instance.AddPilotToRoster(pilotDef, true);
                     }
                 }
 
-                pilots.AddRange(GetRandomSubList(__instance.RoninPilots, RngStart.Settings.NumberRandomRonin));
+                // random ronin
+                if (RngStart.Settings.NumberRandomRonin > 0)
+                {
+                    var randomRonin = GetRandomSubList(__instance.RoninPilots, RngStart.Settings.NumberRandomRonin);
 
-                // pilot generator works fine for non-ronin =/
+                    foreach (var pilotDef in randomRonin)
+                    {
+                        if (RngStart.Settings.RerollRoninStats)
+                            ReplacePilotStats(pilotDef, __instance.PilotGenerator.GeneratePilots(1, RngStart.Settings.PilotPlanetDifficulty, 0, out _)[0], __instance);
+                        
+                        __instance.AddPilotToRoster(pilotDef, true);
+                    }
+                }
+
+                // random prodedural pilots
                 if (RngStart.Settings.NumberProceduralPilots > 0)
-                    pilots.AddRange(__instance.PilotGenerator.GeneratePilots(RngStart.Settings.NumberProceduralPilots, 1, 0, out _));
+                {
+                    var randomProcedural = __instance.PilotGenerator.GeneratePilots(RngStart.Settings.NumberProceduralPilots, RngStart.Settings.PilotPlanetDifficulty, 0, out _);
 
-                // actually add the pilots to the SimGameState
-                foreach (var pilotDef in pilots)
-                    __instance.AddPilotToRoster(pilotDef, true);
+                    foreach (var pilotDef in randomProcedural)
+                        __instance.AddPilotToRoster(pilotDef, true);
+                }
             }
 
             // mechs
@@ -142,6 +181,8 @@ namespace RandomCampaignStart
 
         public List<string> StartingRonin = new List<string>();
 
+        public bool RerollRoninStats = true;
+        public int PilotPlanetDifficulty = 1;
         public int NumberProceduralPilots = 0;
         public int NumberRandomRonin = 4;
 
