@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using BattleTech;
 using Harmony;
-using HBS;
 using Newtonsoft.Json;
 
 // ReSharper disable CollectionNeverUpdated.Global
