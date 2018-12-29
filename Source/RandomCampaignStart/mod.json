@@ -10,15 +10,17 @@
     
     "Settings": {
         "RemoveAncestralMech": false,
+
         "NumberRandomRonin": 0,
         "NumberProceduralPilots": 0,
-
         "StartingRonin": [
 		    "pilot_backer_FalkM",
 			"pilot_backer_Leone",
 			"pilot_backer_Thomas",
 			"pilot_backer_Helterbran"
         ],
+		"RerollRoninStats" : true,
+        "PilotPlanetDifficulty" : 0,
         
         "NumberLightMechs": 0,
         "NumberMediumMechs": 0,

@@ -17,7 +17,6 @@ namespace RandomCampaignStart
     [HarmonyPatch(typeof(SimGameState), "FirstTimeInitializeDataFromDefs")]
     public static class SimGameState_FirstTimeInitializeDataFromDefs_Patch
     {
-        // from https://stackoverflow.com/questions/273313/randomize-a-listt
         private static readonly Random rng = new Random();
 
         private static void RNGShuffle<T>(this IList<T> list)
@@ -53,42 +52,79 @@ namespace RandomCampaignStart
             return subList;
         }
 
+        private static void ReplacePilotStats(PilotDef pilotDef, PilotDef replacementStatPilotDef, SimGameState simGameState)
+        {
+            // set all stats to the subPilot stats
+            pilotDef.AddBaseSkill(SkillType.Gunnery, replacementStatPilotDef.BaseGunnery - pilotDef.BaseGunnery);
+            pilotDef.AddBaseSkill(SkillType.Piloting, replacementStatPilotDef.BasePiloting - pilotDef.BasePiloting);
+            pilotDef.AddBaseSkill(SkillType.Guts, replacementStatPilotDef.BaseGuts - pilotDef.BaseGuts);
+            pilotDef.AddBaseSkill(SkillType.Tactics, replacementStatPilotDef.BaseTactics - pilotDef.BaseTactics);
+
+            pilotDef.ResetBonusStats();
+            pilotDef.AddSkill(SkillType.Gunnery, replacementStatPilotDef.BonusGunnery);
+            pilotDef.AddSkill(SkillType.Piloting, replacementStatPilotDef.BonusPiloting);
+            pilotDef.AddSkill(SkillType.Guts, replacementStatPilotDef.BonusGuts);
+            pilotDef.AddSkill(SkillType.Tactics, replacementStatPilotDef.BonusTactics);
+
+            // set exp to replacementStatPilotDef
+            pilotDef.SetSpentExperience(replacementStatPilotDef.ExperienceSpent);
+            pilotDef.SetUnspentExperience(replacementStatPilotDef.ExperienceUnspent);
+
+            // copy abilities
+            pilotDef.abilityDefNames.Clear();
+            pilotDef.abilityDefNames.AddRange(replacementStatPilotDef.abilityDefNames);
+            if (pilotDef.AbilityDefs != null)
+            {
+                pilotDef.AbilityDefs.Clear();
+            }
+            pilotDef.ForceRefreshAbilityDefs();
+        }
+
         public static void Postfix(SimGameState __instance)
         {
-            var NumberStartingRonin = RandomCampaignStart.Settings.StartingRonin.Count;
-
-            if (NumberStartingRonin + RandomCampaignStart.Settings.NumberRandomRonin + RandomCampaignStart.Settings.NumberProceduralPilots > 0)
+            if (RandomCampaignStart.Settings.NumberRandomRonin + RandomCampaignStart.Settings.NumberProceduralPilots > 0)
             {
                 // clear roster
                 while (__instance.PilotRoster.Count > 0)
                     __instance.PilotRoster.RemoveAt(0);
 
-                // pilotgenerator seems to give me the same exact results for ronin
-                // every time, and can push out duplicates, which is odd?
-                // just do our own thing
-                var pilots = new List<PilotDef>();
-
-                if (RandomCampaignStart.Settings.StartingRonin != null)
+                // starting ronin that are always present
+                if (RandomCampaignStart.Settings.StartingRonin != null && RandomCampaignStart.Settings.StartingRonin.Count > 0)
                 {
                     foreach (var roninID in RandomCampaignStart.Settings.StartingRonin)
                     {
                         var pilotDef = __instance.DataManager.PilotDefs.Get(roninID);
 
-                        // add directly to roster, don't want to get duplicate ronin from random ronin
+                        if (RandomCampaignStart.Settings.RerollRoninStats)
+                            ReplacePilotStats(pilotDef, __instance.PilotGenerator.GeneratePilots(1, RandomCampaignStart.Settings.PilotPlanetDifficulty, 0, out _)[0], __instance);
+
                         if (pilotDef != null)
                             __instance.AddPilotToRoster(pilotDef, true, true);
                     }
                 }
 
-                pilots.AddRange(GetRandomSubList(__instance.RoninPilots, RandomCampaignStart.Settings.NumberRandomRonin));
+                // random ronin
+                if (RandomCampaignStart.Settings.NumberRandomRonin > 0)
+                {
+                    var randomRonin = GetRandomSubList(__instance.RoninPilots, RandomCampaignStart.Settings.NumberRandomRonin);
 
-                // pilot generator works fine for non-ronin =/
+                    foreach (var pilotDef in randomRonin)
+                    {
+                        if (RandomCampaignStart.Settings.RerollRoninStats)
+                            ReplacePilotStats(pilotDef, __instance.PilotGenerator.GeneratePilots(1, RandomCampaignStart.Settings.PilotPlanetDifficulty, 0, out _)[0], __instance);
+
+                        __instance.AddPilotToRoster(pilotDef, true, true);
+                    }
+                }
+
+                // random prodedural pilots
                 if (RandomCampaignStart.Settings.NumberProceduralPilots > 0)
-                    pilots.AddRange(__instance.PilotGenerator.GeneratePilots(RandomCampaignStart.Settings.NumberProceduralPilots, 1, 0, out _));
+                {
+                    var randomProcedural = __instance.PilotGenerator.GeneratePilots(RandomCampaignStart.Settings.NumberProceduralPilots, RandomCampaignStart.Settings.PilotPlanetDifficulty, 0, out _);
 
-                // actually add the pilots to the SimGameState
-                foreach (var pilotDef in pilots)
-                    __instance.AddPilotToRoster(pilotDef, true, true);
+                    foreach (var pilotDef in randomProcedural)
+                        __instance.AddPilotToRoster(pilotDef, true);
+                }
             }
 
             // mechs
@@ -145,6 +181,8 @@ namespace RandomCampaignStart
 
         public List<string> StartingRonin = new List<string>();
 
+        public bool RerollRoninStats = true;
+        public int PilotPlanetDifficulty = 1;
         public int NumberProceduralPilots = 0;
         public int NumberRandomRonin = 4;
 
@@ -155,6 +193,9 @@ namespace RandomCampaignStart
     {
         internal static ModSettings Settings;
         internal static string ModDirectory;
+
+        // BEN: Debug (0: nothing, 1: errors, 2:all)
+        internal static int DebugLevel = 2;
 
         public static void Init(string modDir, string modSettings)
         {
@@ -177,26 +218,30 @@ namespace RandomCampaignStart
 
     public class Logger
     {
-        static string filePath = $"{RandomCampaignStart.ModDirectory}/Log.txt";
+        static string filePath = $"{RandomCampaignStart.ModDirectory}/RandomCampaignStart.log";
         public static void LogError(Exception ex)
         {
-            using (var writer = new StreamWriter(filePath, true))
+            if (RandomCampaignStart.DebugLevel >= 1)
             {
-                writer.WriteLine("Message :" + ex.Message + "<br/>" + Environment.NewLine + "StackTrace :" + ex.StackTrace +
-                    "" + Environment.NewLine + "Date :" + DateTime.Now.ToString());
-                writer.WriteLine(Environment.NewLine + "-----------------------------------------------------------------------------" + Environment.NewLine);
+                using (StreamWriter writer = new StreamWriter(filePath, true))
+                {
+                    var prefix = "[RandomCampaignStart @ " + DateTime.Now.ToString() + "]";
+                    writer.WriteLine("Message: " + ex.Message + "<br/>" + Environment.NewLine + "StackTrace: " + ex.StackTrace + "" + Environment.NewLine);
+                    writer.WriteLine("----------------------------------------------------------------------------------------------------" + Environment.NewLine);
+                }
             }
         }
 
         public static void LogLine(String line)
         {
-            using (var writer = new StreamWriter(filePath, true))
+            if (RandomCampaignStart.DebugLevel >= 2)
             {
-                writer.WriteLine(line + Environment.NewLine + "Date :" + DateTime.Now.ToString());
-                writer.WriteLine(Environment.NewLine + "-----------------------------------------------------------------------------" + Environment.NewLine);
+                using (StreamWriter writer = new StreamWriter(filePath, true))
+                {
+                    var prefix = "[RandomCampaignStart @ " + DateTime.Now.ToString() + "]";
+                    writer.WriteLine(prefix + line);
+                }
             }
         }
     }
-
-
 }
