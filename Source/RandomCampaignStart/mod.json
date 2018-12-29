@@ -1,25 +1,27 @@
 {
     "Name": "RandomCampaignStart",
+	"Enabled": true,
     "DLL": "RandomCampaignStart.dll",
 
-    "Version": "0.3.0",
+    "Version": "0.2.2",
     "Description": "Randomizes the starting mechwarriors and mechs.",
-    "Author": "mpstark",
+    "Author": "Mpstark (with modifcations by Ben)",
     "Website": "www.github.com/mpstark/RandomCampaignStart",
     
     "Settings": {
-        "RemoveAncestralMech": true,
-
-        "NumberRandomRonin": 4,
+        "RemoveAncestralMech": false,
+        "NumberRandomRonin": 0,
         "NumberProceduralPilots": 0,
-        "RerollRoninStats" : true,
-        "PilotPlanetDifficulty" : 0,
 
         "StartingRonin": [
+		    "pilot_backer_FalkM",
+			"pilot_backer_Leone",
+			"pilot_backer_Thomas",
+			"pilot_backer_Helterbran"
         ],
         
-        "NumberLightMechs": 3,
-        "NumberMediumMechs": 2,
+        "NumberLightMechs": 0,
+        "NumberMediumMechs": 0,
         "NumberHeavyMechs": 0,
         "NumberAssaultMechs": 0,
 
