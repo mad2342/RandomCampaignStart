@@ -1,12 +1,12 @@
 {
     "Name": "RandomCampaignStart",
 	"Enabled": true,
-    "DLL": "RandomCampaignStart.dll",
 
-    "Version": "0.2.2",
-    "Description": "Randomizes the starting mechwarriors and mechs.",
-    "Author": "Mpstark (with modifcations by Ben)",
-    "Website": "www.github.com/mpstark/RandomCampaignStart",
+    "Version": "1.3.1-001R",
+    "Description": "Customize your campaign by giving yourself random mechs and mechwarriors at game start.",
+    "Author": "Mad (Forked from Mpstark)",
+
+	"DLL": "RandomCampaignStart.dll",
     
     "Settings": {
         "RemoveAncestralMech": false,

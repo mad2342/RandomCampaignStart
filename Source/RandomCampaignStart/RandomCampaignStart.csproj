@@ -29,9 +29,9 @@
       <HintPath>D:\Games\GOG Galaxy\Games\BATTLETECH\BattleTech_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net35\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Ref\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -46,11 +46,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="mod.json" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) $(SolutionDir)..\Release\$(TargetName)\ /Y
-
-copy $(ProjectDir)mod.json $(SolutionDir)..\Release\$(TargetName)\ /Y</PostBuildEvent>
+    <PostBuildEvent>
+xcopy $(TargetPath) $(SolutionDir)..\Release\$(TargetName)\ /Y
+xcopy $(ProjectDir)mod.json $(SolutionDir)..\Release\$(TargetName)\ /Y
+xcopy $(ProjectDir)README.md $(SolutionDir)..\Release\$(TargetName)\ /Y
+xcopy $(ProjectDir)README.md $(SolutionDir)..\ /Y
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
