@@ -6,11 +6,7 @@ using BattleTech;
 using Harmony;
 using Newtonsoft.Json;
 
-// ReSharper disable CollectionNeverUpdated.Global
-// ReSharper disable FieldCanBeMadeReadOnly.Global
-// ReSharper disable ConvertToConstant.Global
-// ReSharper disable InconsistentNaming
-// ReSharper disable UnusedMember.Global
+
 
 namespace RandomCampaignStart
 {
@@ -167,6 +163,35 @@ namespace RandomCampaignStart
         }
     }
 
+
+
+    [HarmonyPatch(typeof(SimGameState), "GetUnusedRonin")]
+    public static class SimGameState_GetUnusedRonin_Patch
+    {
+        public static void Postfix(ref SimGameState __instance, ref PilotDef __result)
+        {
+            try
+            {
+                if (__result != null)
+                {
+                    string selectedRoninId = __result.Description.Id; Logger.LogLine("[SimGameState_GetUnusedRonin_POSTFIX] selectedRoninId: " + selectedRoninId);
+
+                    if (RandomCampaignStart.Settings.BlacklistedRonins.Contains(selectedRoninId))
+                    {
+                        Logger.LogLine("[SimGameState_GetUnusedRonin_POSTFIX] selectedRoninId: " + selectedRoninId + " is blacklisted!");
+                        __result = null;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e);
+            }
+        }
+    }
+
+
+
     internal class ModSettings
     {
         public List<string> AssaultMechsPossible = new List<string>();
@@ -180,6 +205,7 @@ namespace RandomCampaignStart
         public int NumberMediumMechs = 1;
 
         public List<string> StartingRonin = new List<string>();
+        public List<string> BlacklistedRonins = new List<string>();
 
         public bool RerollRoninStats = true;
         public int PilotPlanetDifficulty = 1;

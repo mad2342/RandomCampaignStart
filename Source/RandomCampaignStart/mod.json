@@ -2,7 +2,7 @@
     "Name": "RandomCampaignStart",
 	"Enabled": true,
 
-    "Version": "1.3.1-001R",
+    "Version": "1.3.2-001R",
     "Description": "Customize your campaign by giving yourself random mechs and mechwarriors at game start.",
     "Author": "Mad (Forked from Mpstark)",
 
@@ -18,6 +18,20 @@
 			"pilot_backer_Leone",
 			"pilot_backer_Thomas",
 			"pilot_backer_Helterbran"
+        ],
+        "BlacklistedRonin": [
+            "pilot_sim_starter_behemoth",
+            "pilot_sim_starter_dekker",
+            "pilot_sim_starter_glitch",
+            "pilot_sim_starter_medusa",
+            "pilot_backer_Test9",
+            "pilot_backer_Nick",
+            "pilot_backer_Fielding",
+            "pilot_backer_Keane",
+            "pilot_backer_Saada",
+            "pilot_backer_Slipais",
+            "pilot_ronin_Squire",
+            "pilot_backer_Bixby"
         ],
 		"RerollRoninStats" : true,
         "PilotPlanetDifficulty" : 0,
