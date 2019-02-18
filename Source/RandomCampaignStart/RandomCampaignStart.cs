@@ -5,15 +5,14 @@ using System.Reflection;
 using BattleTech;
 using Harmony;
 using Newtonsoft.Json;
-
-
+using System.Linq;
 
 namespace RandomCampaignStart
 {
     [HarmonyPatch(typeof(SimGameState), "FirstTimeInitializeDataFromDefs")]
     public static class SimGameState_FirstTimeInitializeDataFromDefs_Patch
     {
-        private static readonly Random rng = new Random();
+        private static readonly Random RNG = new Random();
 
         private static void RNGShuffle<T>(this IList<T> list)
         {
@@ -21,7 +20,7 @@ namespace RandomCampaignStart
             while (n > 1)
             {
                 n--;
-                var k = rng.Next(n + 1);
+                var k = RNG.Next(n + 1);
                 var value = list[k];
                 list[k] = list[n];
                 list[n] = value;
@@ -48,7 +47,7 @@ namespace RandomCampaignStart
             return subList;
         }
 
-        private static void ReplacePilotStats(PilotDef pilotDef, PilotDef replacementStatPilotDef, SimGameState simGameState)
+        private static void ReplacePilotStats(PilotDef pilotDef, PilotDef replacementStatPilotDef)
         {
             // set all stats to the subPilot stats
             pilotDef.AddBaseSkill(SkillType.Gunnery, replacementStatPilotDef.BaseGunnery - pilotDef.BaseGunnery);
@@ -69,17 +68,18 @@ namespace RandomCampaignStart
             // copy abilities
             pilotDef.abilityDefNames.Clear();
             pilotDef.abilityDefNames.AddRange(replacementStatPilotDef.abilityDefNames);
-            if (pilotDef.AbilityDefs != null)
-            {
-                pilotDef.AbilityDefs.Clear();
-            }
+            pilotDef.AbilityDefs?.Clear();
             pilotDef.ForceRefreshAbilityDefs();
         }
 
         public static void Postfix(SimGameState __instance)
         {
-            if (RandomCampaignStart.Settings.NumberRandomRonin + RandomCampaignStart.Settings.NumberProceduralPilots > 0)
+            Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] Called");
+
+            if (RandomCampaignStart.Settings.StartingRonin.Count + RandomCampaignStart.Settings.NumberRandomRonin + RandomCampaignStart.Settings.NumberProceduralPilots > 0)
             {
+                Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] Randomizing Pilots");
+
                 // clear roster
                 while (__instance.PilotRoster.Count > 0)
                     __instance.PilotRoster.RemoveAt(0);
@@ -89,10 +89,11 @@ namespace RandomCampaignStart
                 {
                     foreach (var roninID in RandomCampaignStart.Settings.StartingRonin)
                     {
+                        Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] startingRoninID: " + roninID);
                         var pilotDef = __instance.DataManager.PilotDefs.Get(roninID);
 
                         if (RandomCampaignStart.Settings.RerollRoninStats)
-                            ReplacePilotStats(pilotDef, __instance.PilotGenerator.GeneratePilots(1, RandomCampaignStart.Settings.PilotPlanetDifficulty, 0, out _)[0], __instance);
+                            ReplacePilotStats(pilotDef, __instance.PilotGenerator.GeneratePilots(1, RandomCampaignStart.Settings.PilotPlanetDifficulty, 0, out _)[0]);
 
                         if (pilotDef != null)
                             __instance.AddPilotToRoster(pilotDef, true, true);
@@ -102,30 +103,37 @@ namespace RandomCampaignStart
                 // random ronin
                 if (RandomCampaignStart.Settings.NumberRandomRonin > 0)
                 {
-                    var randomRonin = GetRandomSubList(__instance.RoninPilots, RandomCampaignStart.Settings.NumberRandomRonin);
+                    //var randomRonin = GetRandomSubList(__instance.RoninPilots, RandomCampaignStart.Settings.NumberRandomRonin);
+                    var randomRonin = GetRandomSubList(__instance.RoninPilots.Where(x => !RandomCampaignStart.Settings.StartingRonin.Contains(x.Description.Id)).ToList(), RandomCampaignStart.Settings.NumberRandomRonin);
 
                     foreach (var pilotDef in randomRonin)
                     {
+                        Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] randomRoninID: " + pilotDef.Description.Id);
                         if (RandomCampaignStart.Settings.RerollRoninStats)
-                            ReplacePilotStats(pilotDef, __instance.PilotGenerator.GeneratePilots(1, RandomCampaignStart.Settings.PilotPlanetDifficulty, 0, out _)[0], __instance);
+                            ReplacePilotStats(pilotDef, __instance.PilotGenerator.GeneratePilots(1, RandomCampaignStart.Settings.PilotPlanetDifficulty, 0, out _)[0]);
 
                         __instance.AddPilotToRoster(pilotDef, true, true);
                     }
                 }
 
-                // random prodedural pilots
+                // random procedural pilots
                 if (RandomCampaignStart.Settings.NumberProceduralPilots > 0)
                 {
                     var randomProcedural = __instance.PilotGenerator.GeneratePilots(RandomCampaignStart.Settings.NumberProceduralPilots, RandomCampaignStart.Settings.PilotPlanetDifficulty, 0, out _);
 
                     foreach (var pilotDef in randomProcedural)
+                    {
+                        Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] randomProceduralName: " + pilotDef.Description.Name);
                         __instance.AddPilotToRoster(pilotDef, true);
+                    }
                 }
             }
 
             // mechs
             if (RandomCampaignStart.Settings.NumberLightMechs + RandomCampaignStart.Settings.NumberMediumMechs + RandomCampaignStart.Settings.NumberHeavyMechs + RandomCampaignStart.Settings.NumberAssaultMechs > 0)
             {
+                Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] Randomizing Mechs");
+
                 var baySlot = 1;
                 var mechIds = new List<string>();
 
@@ -150,6 +158,8 @@ namespace RandomCampaignStart
                 for (var i = 0; i < mechIds.Count; i++)
                 {
                     var mechDef = new MechDef(__instance.DataManager.MechDefs.Get(mechIds[i]), __instance.GenerateSimGameUID());
+                    Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] mechDefID: " + mechDef.Description.Id);
+
                     __instance.AddMech(baySlot, mechDef, true, true, false);
 
                     // check to see if we're on the last mechbay and if we have more mechs to add

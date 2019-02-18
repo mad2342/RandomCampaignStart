@@ -3,7 +3,7 @@
 	"Enabled": true,
 
     "Version": "1.3.2-001R",
-    "Description": "Customize your campaign by giving yourself random mechs and mechwarriors at game start.",
+    "Description": "Randomizes the starting MechWarriors and 'Mechs.",
     "Author": "Mad (Forked from Mpstark)",
 
 	"DLL": "RandomCampaignStart.dll",
