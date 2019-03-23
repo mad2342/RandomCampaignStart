@@ -228,22 +228,25 @@ namespace RandomCampaignStart
     public static class RandomCampaignStart
     {
         internal static ModSettings Settings;
+        internal static string LogPath;
         internal static string ModDirectory;
 
         // BEN: Debug (0: nothing, 1: errors, 2:all)
         internal static int DebugLevel = 2;
 
-        public static void Init(string modDir, string modSettings)
+        public static void Init(string directory, string settings)
         {
             var harmony = HarmonyInstance.Create("io.github.mpstark.RandomCampaignStart");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-            ModDirectory = modDir;
+            ModDirectory = directory;
+            LogPath = Path.Combine(ModDirectory, "RandomCampaignStart.log");
+            File.CreateText(RandomCampaignStart.LogPath);
 
             // read settings
             try
             {
-                Settings = JsonConvert.DeserializeObject<ModSettings>(modSettings);
+                Settings = JsonConvert.DeserializeObject<ModSettings>(settings);
             }
             catch (Exception)
             {
@@ -254,7 +257,7 @@ namespace RandomCampaignStart
 
     public class Logger
     {
-        static string filePath = $"{RandomCampaignStart.ModDirectory}/RandomCampaignStart.log";
+        static string filePath = RandomCampaignStart.LogPath;
         public static void LogError(Exception ex)
         {
             if (RandomCampaignStart.DebugLevel >= 1)
