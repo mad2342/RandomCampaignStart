@@ -236,7 +236,7 @@ namespace RandomCampaignStart
 
         public static void Init(string directory, string settings)
         {
-            var harmony = HarmonyInstance.Create("io.github.mpstark.RandomCampaignStart");
+            var harmony = HarmonyInstance.Create("de.mad.RandomCampaignStart");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
             ModDirectory = directory;

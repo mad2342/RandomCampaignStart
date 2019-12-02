@@ -2,7 +2,7 @@
     "Name": "RandomCampaignStart",
 	"Enabled": true,
 
-    "Version": "1.5.0-001R",
+    "Version": "1.8.0-001R",
     "Description": "Randomizes the starting MechWarriors and 'Mechs.",
     "Author": "Mad (Forked from Mpstark)",
 
