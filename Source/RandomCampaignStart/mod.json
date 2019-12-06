@@ -1,12 +1,12 @@
 {
     "Name": "RandomCampaignStart",
-	"Enabled": true,
+    "Enabled": true,
 
     "Version": "1.8.0-001R",
     "Description": "Randomizes the starting MechWarriors and 'Mechs.",
     "Author": "Mad (Forked from Mpstark)",
 
-	"DLL": "RandomCampaignStart.dll",
+    "DLL": "RandomCampaignStart.dll",
     
     "Settings": {
         "RemoveAncestralMech": false,
@@ -14,10 +14,10 @@
         "NumberRandomRonin": 0,
         "NumberProceduralPilots": 0,
         "StartingRonin": [
-		    "pilot_backer_FalkM",
-			"pilot_backer_Leone",
-			"pilot_backer_Thomas",
-			"pilot_backer_Helterbran"
+            "pilot_backer_FalkM",
+            "pilot_backer_Leone",
+            "pilot_backer_Thomas",
+            "pilot_backer_Helterbran"
         ],
         "BlacklistedRonins": [
             "pilot_backer_Test9",
@@ -29,7 +29,7 @@
             "pilot_ronin_Squire",
             "pilot_backer_Bixby"
         ],
-		"RerollRoninStats" : true,
+        "RerollRoninStats" : true,
         "PilotPlanetDifficulty" : 0,
         
         "NumberLightMechs": 0,
