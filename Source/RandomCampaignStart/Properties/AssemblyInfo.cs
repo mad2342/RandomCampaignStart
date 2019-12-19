@@ -6,4 +6,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("RandomCampaignStart")]
 [assembly: ComVisible(false)]
 [assembly: Guid("61860A47-3936-4827-9738-C499931E36DE")]
-[assembly: AssemblyVersion("1.8.0.*")]
+[assembly: AssemblyVersion("1.8.1.*")]
