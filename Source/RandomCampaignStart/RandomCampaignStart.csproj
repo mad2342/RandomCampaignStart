@@ -34,6 +34,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Link\MadLogger.cs">
+      <Link>MadLogger.cs</Link>
+    </Compile>
     <Compile Include="RandomCampaignStart.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
