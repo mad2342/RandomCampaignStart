@@ -31,7 +31,7 @@ namespace RandomCampaignStart
             catch (Exception e)
             {
                 Settings = new Settings();
-                Logger.LogError(e);
+                Logger.Error(e);
             }
 
             // Harmony calls need to go last here because their Prepare() methods directly check Settings...
@@ -107,11 +107,11 @@ namespace RandomCampaignStart
 
         public static void Postfix(SimGameState __instance)
         {
-            Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] Called");
+            Logger.Debug("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] Called");
 
             if (RandomCampaignStart.Settings.StartingRonin.Count + RandomCampaignStart.Settings.NumberRandomRonin + RandomCampaignStart.Settings.NumberProceduralPilots > 0)
             {
-                Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] Randomizing Pilots");
+                Logger.Debug("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] Randomizing Pilots");
 
                 // clear roster
                 while (__instance.PilotRoster.Count > 0)
@@ -122,7 +122,7 @@ namespace RandomCampaignStart
                 {
                     foreach (var roninID in RandomCampaignStart.Settings.StartingRonin)
                     {
-                        Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] startingRoninID: " + roninID);
+                        Logger.Debug("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] startingRoninID: " + roninID);
                         var pilotDef = __instance.DataManager.PilotDefs.Get(roninID);
 
                         if (RandomCampaignStart.Settings.RerollRoninStats)
@@ -141,7 +141,7 @@ namespace RandomCampaignStart
 
                     foreach (var pilotDef in randomRonin)
                     {
-                        Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] randomRoninID: " + pilotDef.Description.Id);
+                        Logger.Debug("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] randomRoninID: " + pilotDef.Description.Id);
                         if (RandomCampaignStart.Settings.RerollRoninStats)
                             ReplacePilotStats(pilotDef, __instance.PilotGenerator.GeneratePilots(1, RandomCampaignStart.Settings.PilotPlanetDifficulty, 0, out _)[0]);
 
@@ -156,7 +156,7 @@ namespace RandomCampaignStart
 
                     foreach (var pilotDef in randomProcedural)
                     {
-                        Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] randomProceduralName: " + pilotDef.Description.Name);
+                        Logger.Debug("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] randomProceduralName: " + pilotDef.Description.Name);
                         __instance.AddPilotToRoster(pilotDef, true);
                     }
                 }
@@ -165,7 +165,7 @@ namespace RandomCampaignStart
             // mechs
             if (RandomCampaignStart.Settings.NumberLightMechs + RandomCampaignStart.Settings.NumberMediumMechs + RandomCampaignStart.Settings.NumberHeavyMechs + RandomCampaignStart.Settings.NumberAssaultMechs > 0)
             {
-                Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] Randomizing Mechs");
+                Logger.Debug("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] Randomizing Mechs");
 
                 var baySlot = 1;
                 var mechIds = new List<string>();
@@ -191,7 +191,7 @@ namespace RandomCampaignStart
                 for (var i = 0; i < mechIds.Count; i++)
                 {
                     var mechDef = new MechDef(__instance.DataManager.MechDefs.Get(mechIds[i]), __instance.GenerateSimGameUID());
-                    Logger.LogLine("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] mechDefID: " + mechDef.Description.Id);
+                    Logger.Debug("[SimGameState_FirstTimeInitializeDataFromDefs_POSTFIX] mechDefID: " + mechDef.Description.Id);
 
                     __instance.AddMech(baySlot, mechDef, true, true, false);
 
@@ -217,18 +217,18 @@ namespace RandomCampaignStart
             {
                 if (__result != null)
                 {
-                    string selectedRoninId = __result.Description.Id; Logger.LogLine("[SimGameState_GetUnusedRonin_POSTFIX] selectedRoninId: " + selectedRoninId);
+                    string selectedRoninId = __result.Description.Id; Logger.Debug("[SimGameState_GetUnusedRonin_POSTFIX] selectedRoninId: " + selectedRoninId);
 
                     if (RandomCampaignStart.Settings.BlacklistedRonins.Contains(selectedRoninId))
                     {
-                        Logger.LogLine("[SimGameState_GetUnusedRonin_POSTFIX] selectedRoninId: " + selectedRoninId + " is blacklisted!");
+                        Logger.Debug("[SimGameState_GetUnusedRonin_POSTFIX] selectedRoninId: " + selectedRoninId + " is blacklisted!");
                         __result = null;
                     }
                 }
             }
             catch (Exception e)
             {
-                Logger.LogError(e);
+                Logger.Error(e);
             }
         }
     }
